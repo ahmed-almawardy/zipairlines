@@ -1,6 +1,5 @@
-from datetime import datetime
 from math import log
-from unicodedata import name
+from sys import breakpointhook
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -12,6 +11,8 @@ class Airplane(models.Model):
         unique=True, validators=[MinValueValidator(1), MaxValueValidator(10)], 
         verbose_name=_('id'),
         primary_key=True)
+    passengers = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
+    
     # type = models.ForeignKey('AirplaneType', on_delete=models.DO_NOTHING)
     # name = models.CharField(_("name"), max_length=250)
 
@@ -34,13 +35,9 @@ class Airplane(models.Model):
             2. additional_consumption += LITERS_CONSUMPTED_PER_MINUTE
             3. log(self.id) * additional_consumption
         """
-
-        additional_consumption = self.flights.filter(is_active=True).first().passengers.count()\
-            * settings.PASSENGER_LITERS_CONSUMPTION_FRACTION
-            
+        additional_consumption = self.passengers * settings.PASSENGER_LITERS_CONSUMPTION_FRACTION
         additional_consumption+=settings.LITERS_CONSUMPTED_PER_MINUTE
-
-        return  log(self.id) * additional_consumption
+        return  log(self.id) * additional_consumption if log(self.id) > 0 else additional_consumption
 
     @property
     def maxmium_minute_to_fly(self) -> int :
@@ -64,22 +61,22 @@ class Airplane(models.Model):
 #         return self.name
     
 
-class Flight(models.Model):
-    def arrives_default(self) -> datetime:
-        from django.utils.timezone import timedelta
-        # could make model for destions and the destination between them in m/k 
-        # then make an eqution to get a default arrive type depends on the destion_from/to
-        return self.deptures + timedelta(hours=2)
+# class Flight(models.Model):
+#     def arrives_default(self) -> datetime:
+#         from django.utils.timezone import timedelta
+#         # could make model for destions and the destination between them in m/k 
+#         # then make an eqution to get a default arrive type depends on the destion_from/to
+#         return self.deptures + timedelta(hours=2)
     
-    name = models.CharField(_("name"), max_length=250)
-    passengers = models.ManyToManyField('passenger.Passenger', verbose_name=_('passengers'), related_name='flights')
-    airplane = models.ForeignKey('airplane.Airplane', related_name='flights', on_delete=models.DO_NOTHING)
-    is_active = models.BooleanField(_("is active"), null=True, blank=True, default=False)
-    destination_from = models.CharField(_('from'), null=True, blank=True, max_length=250) 
-    destination_to = models.CharField(_('to'), null=True, blank=True, max_length=250)
-    deptures = models.DateTimeField(_('depture'), auto_now_add=True)
-    arrives = models.DateTimeField(_('arrives'), default=arrives_default) 
+#     name = models.CharField(_("name"), max_length=250)
+#     passengers = models.ManyToManyField('passenger.Passenger', verbose_name=_('passengers'), related_name='flights')
+#     airplane = models.ForeignKey('airplane.Airplane', related_name='flights', on_delete=models.DO_NOTHING)
+#     is_active = models.BooleanField(_("is active"), null=True, blank=True, default=False)
+#     destination_from = models.CharField(_('from'), null=True, blank=True, max_length=250) 
+#     destination_to = models.CharField(_('to'), null=True, blank=True, max_length=250)
+#     deptures = models.DateTimeField(_('depture'), auto_now_add=True)
+#     arrives = models.DateTimeField(_('arrives'), default=arrives_default) 
 
-    def __str__(self) -> str:
-        return self.name
+#     def __str__(self) -> str:
+#         return self.name
     
