@@ -19,15 +19,15 @@ class FlightSerializer(serializers.Serializer):
     airpalanes = AirplanerSerializer(many=True)
     
     def create(self, validated_data):
-        print(validated_data['airpalanes'])
         return validated_data['airpalanes']
-
-
 
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('maxmium_minute_to_fly', 'total_fuel_consumption_per_minute', 'fuel_tank')
         model = Airplane
         extra_kwargs = {
-    'maxmium_minute_to_fly':{'read_only':True}, 'total_fuel_consumption_per_minute':{'read_only':True}, 'fuel_tank':{'read_only':True}
-}
+        'maxmium_minute_to_fly':{'read_only':True}, 
+        'total_fuel_consumption_per_minute':{'read_only':True}, 
+        'fuel_tank':{'read_only':True}
+    }
+        
