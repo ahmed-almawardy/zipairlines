@@ -10,7 +10,7 @@ class AirplaneAPIViewSet(ModelViewSet):
     serializer_class = FlightSerializer
 
     def get_serializer_class(self, *args, **kwargs):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return AirplaneReadOnlySerializer
         else:
             return FlightSerializer
