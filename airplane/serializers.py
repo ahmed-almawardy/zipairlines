@@ -4,6 +4,9 @@ from typing import List, Dict
 
         
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
+    """
+        read airplanes objects from db
+    """
     class Meta:
         fields = ('id', 'passengers', 'maxmium_minute_to_fly', 'total_fuel_consumption_per_minute', 'fuel_tank')
         model = Airplane
@@ -13,9 +16,12 @@ class AirplaneReadOnlySerializer(serializers.ModelSerializer):
             'fuel_tank':{'read_only':True}
         }
         
-     
 
 class AirplanesField(serializers.Field):
+    """
+        Custom DRF Field to serialize and deserialize the airplanes
+    """
+    
     def to_representation(self, value) ->'List[Dict]' :
         """
             Serializering tjhe field back after processing it
@@ -40,7 +46,11 @@ class AirplanesField(serializers.Field):
             for airplane in data if airplane.get('id') > 0 < 11 and airplane.get('passengers') > 0 ]
         return airplanes
 
+
 class AirplanesWriteSerializer(serializers.Serializer):
+    """
+        Write to airplanes {create, update}
+    """
     airplanes = AirplanesField()
     
     def create(self, validated_data) -> 'List[Dict]':
@@ -49,3 +59,4 @@ class AirplanesWriteSerializer(serializers.Serializer):
         """
         airplanes = Airplane.objects.bulk_create(validated_data['airplanes'])
         return AirplaneReadOnlySerializer(airplanes, many=True).data
+
