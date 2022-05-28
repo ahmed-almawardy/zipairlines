@@ -7,7 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Airplane(models.Model):
-    id = models.BigIntegerField(
+    id = models.PositiveBigIntegerField(
         unique=True, validators=[MinValueValidator(1), MaxValueValidator(10)], 
         verbose_name=_('id'),
         primary_key=True)
