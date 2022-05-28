@@ -13,7 +13,8 @@ class AirplaneAPIViewSet(ModelViewSet):
             'update': AirplanesUpdateSerializer,
             'partial_update': AirplanesUpdateSerializer,
             'create': AirplanesCreateSerializer,
-        }
+    }
         
     def get_serializer_class(self, *args, **kwargs):
-        return self.serializers[self.action]        
+        return self.serializers[self.action]
+    

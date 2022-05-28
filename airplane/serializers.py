@@ -3,6 +3,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 from django.utils.translation import gettext as _
 from airplane.models import Airplane
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_serializer_method
 
         
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
@@ -23,7 +25,24 @@ class AirplanesField(serializers.Field):
     """
         Custom DRF Field to serialize and deserialize the airplanes
     """
-    
+    class Meta:
+        """for swagger docs """
+        swagger_schema_fields = {
+            "type": openapi.TYPE_OBJECT,
+            "title": "airplanes",
+            "properties": {
+                "id": openapi.Schema(
+                    title="id",
+                    type=openapi.TYPE_INTEGER,
+                ),
+                "passengers": openapi.Schema(
+                    title="passengers",
+                    type=openapi.TYPE_INTEGER,
+                ),
+            },
+            "required": ["subject", "body"],
+         }
+
     def to_representation(self, value) ->'List[Dict]' :
         """
             Serializering tjhe field back after processing it
@@ -58,10 +77,17 @@ class AirplanesField(serializers.Field):
 class AirplanesCreateSerializer(serializers.Serializer):
     """
         Write to airplanes {create, update}
+        maximum 10 airplanes
+        for example : {
+            'airplanes': [
+            {"id":1, "passengers":3},
+            {"id":3, "passengers":3},
+            {"id":4, "passengers":3},
+            {"id":5, "passengers":3},
+        ] }
     """
-    airplanes = AirplanesField()
-    passengers = serializers.IntegerField(min_value=1, allow_null=False, write_only=True, required=False)
-        
+    airplanes:"List[Dict]" = AirplanesField(initial={'airplanes':[{"id":1, "passengers":3},{"id":2, "passengers":33}]})
+    
     def create(self, validated_data) -> 'List[Dict]':
         """
             Creating the new airplanes, then get it
