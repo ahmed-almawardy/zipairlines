@@ -4,7 +4,6 @@ from rest_framework.exceptions import APIException
 from django.utils.translation import gettext as _
 from airplane.models import Airplane
 from drf_yasg import openapi
-from drf_yasg.utils import swagger_serializer_method
 
         
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
