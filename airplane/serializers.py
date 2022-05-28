@@ -1,6 +1,8 @@
-from rest_framework import serializers
-from airplane.models import Airplane
 from typing import List, Dict
+from rest_framework import serializers
+from rest_framework.exceptions import APIException
+from django.utils.translation import gettext as _
+from airplane.models import Airplane
 
         
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
@@ -35,16 +37,22 @@ class AirplanesField(serializers.Field):
         """
             Prepare to serilizer the field back after porcessing it     
         """
-        return list(map(lambda x: dict(x), attr_to_print))
-        
+        if isinstance(attr_to_print, list):
+            return list(map(lambda x: dict(x), attr_to_print))
+        return attr_to_print
         
     def to_internal_value(self, data) -> 'List[Airplane]' :
         """
-            Prepare the values to be pushed to the db rows
+            Prepare the values to be pushed to the db rows or updated
         """
-        airplanes = [ Airplane(id=airplane.get('id'), passengers=airplane.get('passengers')) \
-            for airplane in data if airplane.get('id') > 0 < 11 and airplane.get('passengers') > 0 ]
-        return airplanes
+        airplanes = []
+        try:
+            airplanes = [Airplane(id=int(airplane.get('id')), passengers=int(airplane.get('passengers'))) \
+                for airplane in data if int(airplane.get('id')) > 0 < 11 and int(airplane.get('passengers')) > 0 ]
+        except ValueError:
+                raise APIException(_('only integers is allowed'))
+        finally:
+            return airplanes
 
 
 class AirplanesWriteSerializer(serializers.Serializer):
@@ -52,7 +60,8 @@ class AirplanesWriteSerializer(serializers.Serializer):
         Write to airplanes {create, update}
     """
     airplanes = AirplanesField()
-    
+    passengers = serializers.IntegerField(min_value=1, allow_null=False, write_only=True, required=False)
+        
     def create(self, validated_data) -> 'List[Dict]':
         """
             Creating the new airplanes, then get it
@@ -60,3 +69,10 @@ class AirplanesWriteSerializer(serializers.Serializer):
         airplanes = Airplane.objects.bulk_create(validated_data['airplanes'])
         return AirplaneReadOnlySerializer(airplanes, many=True).data
 
+    def update(self, instance, validated_data):
+        """
+            only passengers are allowed to be updated, id is not allowed
+        """
+        instance.passengers = validated_data.get('passengers')
+        instance.save()
+        return AirplaneReadOnlySerializer(instance).data

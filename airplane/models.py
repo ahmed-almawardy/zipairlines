@@ -43,8 +43,10 @@ class Airplane(models.Model):
     def maxmium_minute_to_fly(self) -> int :
         """
             retireving the possible time to fly by calucating fuel tank
-            divided by the total  fuel consumption per minute
+            divided by the total fuel consumption per minute
         """
+        if not self.fuel_tank or self.total_fuel_consumption_per_minute:
+            return 0.0
         return int(self.fuel_tank / self.total_fuel_consumption_per_minute)
     
     def __str__(self) -> str:
