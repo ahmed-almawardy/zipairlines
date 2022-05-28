@@ -7,7 +7,7 @@ from airplane.models import Airplane
         
 class AirplaneReadOnlySerializer(serializers.ModelSerializer):
     """
-        read airplanes objects from db
+        Read airplanes objects from db
     """
     class Meta:
         fields = ('id', 'passengers', 'maxmium_minute_to_fly', 'total_fuel_consumption_per_minute', 'fuel_tank')
@@ -69,9 +69,9 @@ class AirplanesWriteSerializer(serializers.Serializer):
         airplanes = Airplane.objects.bulk_create(validated_data['airplanes'])
         return AirplaneReadOnlySerializer(airplanes, many=True).data
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data) -> 'List[Dict]':
         """
-            only passengers are allowed to be updated, id is not allowed
+            Only passengers are allowed to be updated, id is not allowed
         """
         instance.passengers = validated_data.get('passengers')
         instance.save()
