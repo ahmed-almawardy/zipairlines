@@ -52,6 +52,8 @@ class Airplane(models.Model):
     def __str__(self) -> str:
         return f'{self.id}'
     
+    class Meta:
+        ordering = ['-id']
 
 # class AirplaneType(models.Model):
 #     name = models.CharField(_('airplane type'), max_length=250)

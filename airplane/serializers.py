@@ -55,7 +55,7 @@ class AirplanesField(serializers.Field):
             return airplanes
 
 
-class AirplanesWriteSerializer(serializers.Serializer):
+class AirplanesCreateSerializer(serializers.Serializer):
     """
         Write to airplanes {create, update}
     """
@@ -69,10 +69,24 @@ class AirplanesWriteSerializer(serializers.Serializer):
         airplanes = Airplane.objects.bulk_create(validated_data['airplanes'])
         return AirplaneReadOnlySerializer(airplanes, many=True).data
 
-    def update(self, instance, validated_data) -> 'List[Dict]':
-        """
-            Only passengers are allowed to be updated, id is not allowed
-        """
-        instance.passengers = validated_data.get('passengers')
-        instance.save()
-        return AirplaneReadOnlySerializer(instance).data
+
+
+class AirplanesUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id', 'passengers')
+        model = Airplane
+        extra_kwargs = {
+            'id': {'read_only':True},
+            'passengers': {'min_value':1},
+        }
+        
+        def create(self, validated_data):
+            raise NotImplemented('use AirplanesCreateSerializer for creating')
+        
+        def update(self, instance, validated_data) -> 'List[Dict]':
+            """
+                Only passengers are allowed to be updated, id is not allowed
+            """
+            instance.passengers = validated_data.get('passengers')
+            instance.save()
+            return AirplaneReadOnlySerializer(instance).data

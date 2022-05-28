@@ -31,13 +31,20 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
+""" Docs urls 
+    for example:
+    http://localhost:8000/docs.json
+    http://localhost:8000/docs.yaml
+    http://localhost:8000/docs/
+    http://localhost:8000/redocs/
+"""
 urlpatterns = [
-   re_path(r'^docs(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-   re_path(r'^docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-   re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-]
-
-urlpatterns += [
+    # docs
+    re_path(r'^docs(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # admin
     path('admin/', admin.site.urls),
+    # apps
     path('airplanes/', include('airplane.urls'))
 ]
